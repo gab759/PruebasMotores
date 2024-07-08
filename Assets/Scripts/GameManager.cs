@@ -1,18 +1,44 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using UnityEngine.SceneManagement;
+using System;
 public class GameManager : MonoBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
+    public static GameManager Instance { get; private set; }
+
+    public event Action OnReachGoal;
+
+    private void Awake()
     {
-        
+        if (Instance == null)
+        {
+            Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
     }
 
-    // Update is called once per frame
-    void Update()
+    private void Start()
     {
-        
+        OnReachGoal += LoadNextLevel;  // Register the event handler
+    }
+
+    private void OnDestroy()
+    {
+        OnReachGoal -= LoadNextLevel;  // Unregister the event handler
+    }
+
+    private void LoadNextLevel()
+    {
+        SceneManager.LoadScene("win");
+    }
+
+    public void TriggerGoalReached()
+    {
+        OnReachGoal?.Invoke();
     }
 }
